@@ -10,7 +10,8 @@ def learn_with_linear_svc(x_list, s_list):
     svc_param = {'alpha':np.logspace(-2, 0, 20)}
     gs_svc = GridSearchCV(LinearSVC(),svc_param,cv=5,n_jobs=4)
     gs_svc.fit(x_list, s_list)
-    print (gs_svc.best_params_, gs_svc.best_score_)
+    print gs_svc.best_params_
+    print 'score : ' + str(gs_svc.best_score_)
     clf = LinearSVC(C=gs_svc.best_params_['C'])
     clf = MultinomialNB(alpha=gs_svc.best_params_['alpha'])
     clf.fit(x_list, s_list)
@@ -21,9 +22,9 @@ if __name__ == "__main__":
     x_list = joblib.load('jisik_x_list.model')
     s_list = joblib.load('jisik_s_list.model')
     print "load complete"
-    cnt = len(x_list)
+    cnt = x_list.shape[0]
     indices = np.random.permutation(cnt)
-    x_list = [x_list[x] for x in indices[:int(cnt)]]
+    x_list = x_list[indices[:int(cnt)]]
     s_list = [s_list[x] for x in indices[:int(cnt)]]
     print "truncation complete"
     gc.collect()
