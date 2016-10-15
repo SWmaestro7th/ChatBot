@@ -26,14 +26,17 @@ def learn_with_SGD(x_list, s_list):
     x_test = x_list[indices[-cnt_test:]]
     print "truncation3"
     s_test = [s_list[x] for x in indices[-cnt_test:]]
+    del x_list
+    del s_list
     print "truncation complete"
     clf = SGDClassifier(loss='log', n_jobs=4, warm_start=False)
     classes = np.unique(s_train)
     if 1:
-        n_iter = 10
+        n_iter = 1
         for i in range(n_iter):
             print 'iter : ' + str(i)
-            batcherator = iter_minibatches(chunksize=100000, x_train=x_train, y_train=s_train)
+            batcherator = iter_minibatches(chunksize=1000, x_train=x_train, y_train=s_train)
+            gc.collect()
             batch_cnt = 0
             for x_batch_train, s_batch_train in batcherator:
                 batch_cnt += 1

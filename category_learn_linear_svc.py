@@ -24,8 +24,8 @@ if __name__ == "__main__":
     print "load complete"
     cnt = x_list.shape[0]
     indices = np.random.permutation(cnt)
-    x_list = x_list[indices[:int(cnt)]]
-    s_list = [s_list[x] for x in indices[:int(cnt)]]
+    x_list = x_list[indices[:int(1000000)]]
+    s_list = [s_list[x] for x in indices[:int(1000000)]]
     print "truncation complete"
     gc.collect()
     print "garbage collection complete"
