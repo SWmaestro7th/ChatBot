@@ -87,7 +87,7 @@ def init_list(filename, get_a_list=False):
                 s_list.append(found_type)
                 cnt_dict[found_type] += 1
                 if print_split_result:
-                    fps[found_type-1].write(q + ' ::: ' + s + '\n')
+                    fps[found_type-1].write(q + '\n')
             except KeyboardInterrupt:
                 print "user terminated"
                 sys.exit()
