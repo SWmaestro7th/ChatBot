@@ -1,13 +1,18 @@
 #-*- coding: utf-8 -*-
 from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.externals import joblib
 import MeCab
 import json
 import sys
 from konlpy.tag import Mecab
 
-types = ["공기질", "날씨", "교통", "동영상", "지도", "공공 데이터", "인물", "음식", "음악", "쇼핑", "영화 예매", "스포츠 경기", "환율", "주식", "뉴스", "로또 당첨 번호", "급식", "알바", "게임", "노래방", "놀이동산", "백과사전", "지식인", "블로그", "상담답변", "미분류"]
-
+types = ["헤어스타일", "항공", "날씨", "방송", "교통", "동영상", "지도", "공공 데이터", "인물", "음식", "음악", "쇼핑", "영화 예매", "스포츠 경기", "환율", "주식", "로또 당첨 번호", "급식", "알바", "게임", "노래방", "놀이동산", "백과사전", "지식인", "블로그", "상담답변", "미분류"]
+print_split_result = True
+if print_split_result:
+    fps = []
+    for i in range(len(types)):
+        fps.append(open('types'+str(i+1),'w'))
 mecab = Mecab()
 def add_space_mecab(s):
     if type(s) is not unicode:
@@ -22,8 +27,10 @@ def add_space_mecab(s):
 
 def init_list(filename, get_a_list=False):
     type_keywords = [
-        ["cleanair", "air", "aqicn"],
+        ["hair"],
+        [".air", "air.", "-air", "air-","airport"],
         ["kma.go.kr", "weather", "날씨"],
+        ["news", "ytn", "sbs", "mbc", "kbs", "joins", "mbn", "jtbc", "chosun", "mt.co.kr", "mnet"],
         ["way", "road", "spatic", "gits", "its", "traffic", "molit", "metro", "bus", "smrt", "ti21", "korail"],
         ["video", "youtube", "동영상", "영상"],
         ["map", "local", "navi", "topis.go.kr"],
@@ -36,7 +43,6 @@ def init_list(filename, get_a_list=False):
         ["sport", "score", "soccer", "ball", "uefa", "doosanbears", "giantsclub", "hanwhaeagles"],
         ["exchange", "TodayEx"],
         ["finance", "stock", "paxnet", "trade"],
-        ["news", "ytn", "sbs", "mbc", "kbs", "joins", "mbn", "jtbc", "chosun", "mt.co.kr"],
         ["lotto","bokgwon", "로또", "복권"],
         ["hs.kr", "meal", "ms.kr", "es.kr", "yego"],
         ["alba"],
@@ -61,9 +67,6 @@ def init_list(filename, get_a_list=False):
             try:
                 if row_cnt % 100000 == 0:
                     print row_cnt
-                '''
-        0,힘내세요  힘드신일이있으면 언제든지 지식맨에게 질문해주시면 24시간답변나갑니다 ^^,1,3,"{u'status': u'N', u'update_date': u'2007-04-30T21:19:24.000Z', u'dislike_cnt': 0, u'user_id': 2, u'reg_date': u'2007-04-30T21:19:24.000Z', u'jisikman_flag': 1, u'like_cnt': 0, u'source': u'', u'adopted_flag': 1, u'old_jisikman_rid': 1177967964370, u'type': u'A', u'id': 1, u'recency_score': -1177967964}",힘들다
-                '''
                 sp_arr = line.split(',"{u')
                 sp_arr2 = sp_arr[1].split('}",')
                 q = sp_arr2[1].strip()
@@ -78,20 +81,27 @@ def init_list(filename, get_a_list=False):
                     if any([x in decoded_s for x in item]):
                         found_type = idx+1
                         break
-
                 q_list.append(add_space_mecab(q))
                 if get_a_list:
                     a_list.append(a)
-                s_list.append(s)
+                s_list.append(found_type)
                 cnt_dict[found_type] += 1
-                # if found_type == len(types) and s != "" and "naver" not in s:
-                #    print q + ' : ' + s
-            except:
+                if print_split_result:
+                    fps[found_type-1].write(q + ' ::: ' + s + '\n')
+            except KeyboardInterrupt:
+                print "user terminated"
+                sys.exit()
+            except Exception as ex:
                 print "error : " + line
+                print ex
 
             row_cnt += 1
             if len(sys.argv) >= 2 and row_cnt > int(sys.argv[1]):
                 break
+
+    for key in cnt_dict:
+        if cnt_dict[key] > 0:
+            print str(key) + " : " + str(cnt_dict[key])
     if get_a_list:
         return q_list, a_list, s_list
     else:
@@ -99,8 +109,13 @@ def init_list(filename, get_a_list=False):
 
 if __name__ == "__main__":
     q_list, s_list = init_list('jisiklog.csv')
+    if print_split_result:
+        for each in fps:
+            each.close()
+
     print "parsing complete"
-    vectorizer = CountVectorizer()
+    #vectorizer = CountVectorizer()
+    vectorizer = TfidfVectorizer(ngram_range=(1,2))
     x_list = vectorizer.fit_transform(q_list)
     joblib.dump(vectorizer,'jisik_vectorizer.dat',compress=3)
     joblib.dump(x_list,'jisik_x_list.model',compress=3)
