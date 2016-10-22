@@ -32,7 +32,7 @@ def learn_word(filename):
             no_num_line = replace_num(line)
             sentences.append(remove_tags_mecab(no_num_line))
     my_min_count = int(len(sentences)/200) or 1
-    model = gensim.models.Word2Vec(sentences, min_count=my_min_count, size=100000, workers=4)
+    model = gensim.models.Word2Vec(sentences, min_count=my_min_count, size=100000, workers=12)
     joblib.dump(model,filename + '_word2vec.model',compress=3)
 
 if __name__ == "__main__":
