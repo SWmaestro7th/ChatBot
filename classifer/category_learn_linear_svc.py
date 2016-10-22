@@ -8,7 +8,7 @@ from sklearn.externals import joblib
 
 def learn_with_linear_svc(x_list, s_list):
     svc_param = {'C':np.logspace(-2, 0, 20)}
-    gs_svc = GridSearchCV(LinearSVC(),svc_param,cv=5,n_jobs=4)
+    gs_svc = GridSearchCV(LinearSVC(),svc_param,cv=5,n_jobs=12)
     gs_svc.fit(x_list, s_list)
     print gs_svc.best_params_
     print 'score : ' + str(gs_svc.best_score_)
@@ -24,9 +24,10 @@ if __name__ == "__main__":
     s_list = joblib.load('jisik_s_list.model')
     print "load complete"
     cnt = x_list.shape[0]
+    print cnt
     indices = np.random.permutation(cnt)
-    x_list = x_list[indices[:int(200000)]]
-    s_list = [s_list[x] for x in indices[:int(200000)]]
+    x_list = x_list[indices[:int(cnt)]]
+    s_list = [s_list[x] for x in indices[:int(cnt)]]
     print "truncation complete"
     gc.collect()
     print "garbage collection complete"
