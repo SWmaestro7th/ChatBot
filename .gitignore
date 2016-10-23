@@ -2,7 +2,6 @@ types*
 *.model
 *.log
 *.csv
-*.dat
 
 # Created by https://www.gitignore.io/api/python
 
